@@ -18,21 +18,15 @@ List<String> cityUseValues = List<String>();
 List<String> cityListTitles = List<String>();
 List<String> cityListValues = List<String>();
 List<String> cityCheckList = List<String>();
+SharedPreferences sharedPrefs;
 
 class _HomeScreenState extends State<HomeScreen> {
-  SharedPreferences sharedPrefs;
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    prepareUserSetting();
-    updateUI();
-  }
-
   @override
   void didChangeDependencies() {
     // TODO: implement didChangeDependencies
     super.didChangeDependencies();
+    prepareUserSetting();
+    updateUI();
     getData();
   }
 
@@ -113,11 +107,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void getData() async {
     final cityBloc = CityDataProvider.of(context);
-    SharedPreferences sharedPrefs = await SharedPreferences.getInstance();
+    sharedPrefs = await SharedPreferences.getInstance();
     cityListValues = sharedPrefs.getStringList("pref_city_list_values");
     cityCheckList = sharedPrefs.getStringList("pref_city_list_check");
     int i = 0;
-    print(cityCheckList);
     cityUseValues.clear();
     for (var isCheck in cityCheckList) {
       if (isCheck == "true") {
@@ -219,11 +212,11 @@ class CityBox extends StatelessWidget {
 }
 
 Future<void> prepareUserSetting() async {
-  SharedPreferences sharedPrefs = await SharedPreferences.getInstance();
+  sharedPrefs = await SharedPreferences.getInstance();
   try {
     sharedPrefs.getStringList("pref_city_list_values") ?? await sharedPrefs.setStringList("pref_city_list_values", ["1835847", "1835235", "1835327", "1838524"]);
     sharedPrefs.getStringList("pref_city_list_titles") ?? await sharedPrefs.setStringList("pref_city_list_titles", ["Seoul", "Daejeon", "Taegu", "Busan"]);
-    sharedPrefs.getStringList("pref_city_list_check") ?? await sharedPrefs.setStringList("pref_city_list_check", cityListTitles.map((_) => "false").toList());
+    sharedPrefs.getStringList("pref_city_list_check") ?? await sharedPrefs.setStringList("pref_city_list_check", ["Seoul", "Daejeon", "Taegu", "Busan"].map((e) => "false").toList());
   } catch (e) {
     print(e);
   }
