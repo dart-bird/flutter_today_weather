@@ -1,0 +1,95 @@
+import 'dart:convert';
+
+import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:flutter_today_weather/screens/home_screen.dart';
+import 'package:flutter_today_weather/screens/test_screen.dart';
+import 'package:flutter_today_weather/services/cityData.dart';
+import 'package:flutter_today_weather/services/cityDataProvider.dart';
+import 'package:flutter_today_weather/services/weather.dart';
+import 'package:flutter_today_weather/screens/weather_detail_screen.dart';
+import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+class LoadingScreen extends StatefulWidget {
+  // LoadingScreen({this.route});
+  // final String route;
+  @override
+  _LoadingScreenState createState() => _LoadingScreenState();
+}
+
+class _LoadingScreenState extends State<LoadingScreen> {
+  var weatherData;
+  List<String> cityListValues = List<String>();
+  List<String> cityListTitles = List<String>();
+  List<String> cityCheckList = List<String>();
+  List<String> cityUseValues = List<String>();
+  List<CityData> cityDataList = List<CityData>();
+
+  @override
+  void didChangeDependencies() {
+    // TODO: implement didChangeDependencies
+    super.didChangeDependencies();
+    prepareUserSetting();
+    getData();
+  }
+
+  void getData() async {
+    final cityBloc = CityDataProvider.of(context);
+    SharedPreferences sharedPrefs = await SharedPreferences.getInstance();
+    cityListTitles = sharedPrefs.getStringList("pref_city_list_titles");
+    cityListValues = sharedPrefs.getStringList("pref_city_list_values");
+    cityCheckList = sharedPrefs.getStringList("pref_city_list_check");
+    int i = 0;
+    for (var isCheck in cityCheckList) {
+      if (isCheck == "true") {
+        cityUseValues.add(cityListValues[i]);
+      }
+      i++;
+    }
+    int j = 0;
+    for (var isCheck in cityCheckList) {
+      print(isCheck);
+      if (isCheck == "true") {
+        cityBloc.getCityData(cityUseValues);
+      }
+      j++;
+    }
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   // Add Your Code here.
+    Get.to(HomeScreen());
+    // });
+  }
+
+  @override
+  void deactivate() {
+    // TODO: implement deactivate
+    super.deactivate();
+
+    print('deactivate');
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Color(0xFFa6b1e1),
+      body: Center(
+        child: SpinKitDoubleBounce(
+          color: Colors.white,
+          size: 100.0,
+        ),
+      ),
+    );
+  }
+
+  Future<void> prepareUserSetting() async {
+    SharedPreferences sharedPrefs = await SharedPreferences.getInstance();
+    try {
+      sharedPrefs.getStringList("pref_city_list_values") ?? await sharedPrefs.setStringList("pref_city_list_values", ["1835847", "1835235", "1835327", "1838524"]);
+      sharedPrefs.getStringList("pref_city_list_titles") ?? await sharedPrefs.setStringList("pref_city_list_titles", ["Seoul", "Daejeon", "Taegu", "Busan"]);
+      sharedPrefs.getStringList("pref_city_list_check") ?? await sharedPrefs.setStringList("pref_city_list_check", cityListTitles.map((_) => "false").toList());
+    } catch (e) {
+      print(e);
+    }
+  }
+}
