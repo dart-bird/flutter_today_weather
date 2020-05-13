@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_today_weather/components/reuseable_card.dart';
 import 'package:flutter_today_weather/screens/setting_screen.dart';
@@ -19,6 +22,7 @@ List<String> cityListTitles = List<String>();
 List<String> cityListValues = List<String>();
 List<String> cityCheckList = List<String>();
 SharedPreferences sharedPrefs;
+bool useInternet = true;
 
 class _HomeScreenState extends State<HomeScreen> {
   @override
@@ -27,6 +31,7 @@ class _HomeScreenState extends State<HomeScreen> {
     super.didChangeDependencies();
     prepareUserSetting();
     updateUI();
+    checkInternetConnection();
     getData();
   }
 
@@ -34,6 +39,19 @@ class _HomeScreenState extends State<HomeScreen> {
     sharedPrefs = await SharedPreferences.getInstance();
     cityCheckList = sharedPrefs.getStringList("pref_city_list_check");
     setState(() {});
+  }
+
+  void checkInternetConnection() async {
+    var result = await Connectivity().checkConnectivity();
+    if (result == ConnectivityResult.none) {
+      setState(() {
+        useInternet = false;
+      });
+    } else {
+      setState(() {
+        useInternet = true;
+      });
+    }
   }
 
   @override
@@ -50,7 +68,7 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Row(
                 children: <Widget>[
                   Text(
-                    'Today\'s Weather',
+                    'Today Weather',
                     style: TextStyle(
                       fontSize: 25,
                       fontWeight: FontWeight.bold,
@@ -70,31 +88,33 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
               ),
             ),
-            StreamBuilder(
-                stream: cityBloc.results,
-                builder: (context, snapshot) {
-                  if (!snapshot.hasData || snapshot.data.length == 0) {
-                    return Container(
-                      child: Padding(
-                        padding: const EdgeInsets.only(
-                          top: 235,
-                        ),
-                        child: Text(
-                          'Please setting to show weather',
-                          style: TextStyle(fontSize: 18),
-                        ),
-                      ),
-                    );
-                  } else {
-                    return Expanded(
-                      child: ListView.builder(
-                          itemCount: snapshot.data.length,
-                          itemBuilder: (context, index) {
-                            return _buildListTile(snapshot, index);
-                          }),
-                    );
-                  }
-                }),
+            useInternet == false
+                ? AlertInternetWarning()
+                : StreamBuilder(
+                    stream: cityBloc.results,
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData || snapshot.data.length == 0) {
+                        return Container(
+                          child: Padding(
+                            padding: const EdgeInsets.only(
+                              top: 235,
+                            ),
+                            child: Text(
+                              'Please setting to show weather',
+                              style: TextStyle(fontSize: 18),
+                            ),
+                          ),
+                        );
+                      } else {
+                        return Expanded(
+                          child: ListView.builder(
+                              itemCount: snapshot.data.length,
+                              itemBuilder: (context, index) {
+                                return _buildListTile(snapshot, index);
+                              }),
+                        );
+                      }
+                    }),
           ],
         ),
       ),
@@ -105,7 +125,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final cityBloc = CityDataProvider.of(context);
     sharedPrefs = await SharedPreferences.getInstance();
 
-    prepareUserSetting();
+    await prepareUserSetting();
     cityListValues = sharedPrefs.getStringList("pref_city_list_values");
     cityCheckList = sharedPrefs.getStringList("pref_city_list_check");
     print(cityListValues);
@@ -124,6 +144,51 @@ class _HomeScreenState extends State<HomeScreen> {
         cityBloc.getCityData(cityUseValues);
       }
     }
+  }
+}
+
+class AlertInternetWarning extends StatelessWidget {
+  const AlertInternetWarning({
+    Key key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      backgroundColor: Colors.lightBlue[200],
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(20.0))),
+      title: new Text(
+        "OFFLINE",
+        style: TextStyle(
+          fontWeight: FontWeight.bold,
+          color: Colors.white,
+          fontSize: 25,
+        ),
+      ),
+      content: new Text(
+        "Check Internet Connection",
+        style: TextStyle(
+          color: Colors.red,
+          fontWeight: FontWeight.bold,
+          fontSize: 20,
+        ),
+      ),
+      actions: <Widget>[
+        // usually buttons at the bottom of the dialog
+        new FlatButton(
+          child: new Text(
+            "Close",
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 20,
+            ),
+          ),
+          onPressed: () {
+            exit(0);
+          },
+        ),
+      ],
+    );
   }
 }
 
@@ -219,3 +284,30 @@ Future<void> prepareUserSetting() async {
     print(e);
   }
 }
+// // user defined function
+// class _showInternetWarning(BuildContext context) {
+//   // flutter defined function
+//   showDialog(
+//     context: context,
+//     builder: (BuildContext context) {
+//       // return object of type Dialog
+//       return AlertDialog(
+//         title: new Text("OFFLINE"),
+//         content: new Text(
+//           "Check Internet Connection",
+//           style: TextStyle(color: Colors.red),
+//         ),
+//         actions: <Widget>[
+//           // usually buttons at the bottom of the dialog
+//           new FlatButton(
+//             child: new Text("Close"),
+//             onPressed: () {
+//               exit(0);
+//             },
+//           ),
+//         ],
+//       );
+//     },
+//   );
+// }
+// }
