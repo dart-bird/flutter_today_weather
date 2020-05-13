@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_today_weather/components/constants.dart';
 import 'package:flutter_today_weather/services/cityData.dart';
-import 'package:flutter_today_weather/services/cityDataProvider.dart';
 import 'package:get/get.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:weather_icons/weather_icons.dart';
 
 class WeatherDetailScreen extends StatefulWidget {
@@ -36,6 +34,8 @@ class _WeatherDetailScreenState extends State<WeatherDetailScreen> {
     // TODO: implement initState
     super.initState();
     updateUI();
+    print(pressure);
+    print(humidity);
   }
 
   void updateUI() {
@@ -85,7 +85,7 @@ class _WeatherDetailScreenState extends State<WeatherDetailScreen> {
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 40),
                       child: Text(
-                        temp,
+                        double.parse(temp).round().toString(),
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 50,
@@ -235,8 +235,8 @@ class LinearBar extends StatelessWidget {
             animation: true,
             lineHeight: 20.0,
             animationDuration: 2500,
-            percent: value,
-            center: Text((value * 100).round().toString() + "%"),
+            percent: value >= 1.0 ? 1.0 : value,
+            center: title == "PRESSURE" ? Text((value).roundToDouble().toString() + " atm") : Text((value * 100).round().toString() + "%"),
             linearStrokeCap: LinearStrokeCap.roundAll,
             progressColor: Colors.white,
             backgroundColor: Colors.lightBlueAccent,

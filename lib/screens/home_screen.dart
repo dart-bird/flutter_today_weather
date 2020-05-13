@@ -36,10 +36,6 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {});
   }
 
-  void listUpdate() {
-    setState(() {});
-  }
-
   @override
   Widget build(BuildContext context) {
     final cityBloc = CityDataProvider.of(context);
@@ -108,8 +104,13 @@ class _HomeScreenState extends State<HomeScreen> {
   void getData() async {
     final cityBloc = CityDataProvider.of(context);
     sharedPrefs = await SharedPreferences.getInstance();
+
+    prepareUserSetting();
     cityListValues = sharedPrefs.getStringList("pref_city_list_values");
     cityCheckList = sharedPrefs.getStringList("pref_city_list_check");
+    print(cityListValues);
+    print(cityCheckList); // 왜 출력하면 내용이 있고 출력안하면 내용이 없지?
+
     int i = 0;
     cityUseValues.clear();
     for (var isCheck in cityCheckList) {
@@ -170,36 +171,33 @@ class CityBox extends StatelessWidget {
             SizedBox(
               width: 10,
             ),
-            Expanded(
-              child: Row(
-                children: <Widget>[
-                  Column(
-                    children: <Widget>[
-                      Icon(
-                        WeatherIcons.thermometer_internal,
-                        size: 22,
-                        color: Colors.white,
-                      ),
-                      SizedBox(
-                        height: 10,
-                      )
-                    ],
-                  ),
-                  SizedBox(
-                    width: 5,
-                  ),
-                  Text(
-                    temp,
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                      decoration: TextDecoration.none,
-                    ),
-                  ),
-                ],
+            Column(
+              children: <Widget>[
+                Icon(
+                  WeatherIcons.thermometer_internal,
+                  size: 22,
+                  color: Colors.white,
+                ),
+                SizedBox(
+                  height: 10,
+                )
+              ],
+            ),
+            SizedBox(
+              width: 5,
+            ),
+            Text(
+              temp,
+              overflow: TextOverflow.fade,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 20,
+                decoration: TextDecoration.none,
               ),
             ),
+            Expanded(child: SizedBox()),
             Text(weatherName,
+                overflow: TextOverflow.fade,
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 20,
@@ -216,7 +214,7 @@ Future<void> prepareUserSetting() async {
   try {
     sharedPrefs.getStringList("pref_city_list_values") ?? await sharedPrefs.setStringList("pref_city_list_values", ["1835847", "1835235", "1835327", "1838524"]);
     sharedPrefs.getStringList("pref_city_list_titles") ?? await sharedPrefs.setStringList("pref_city_list_titles", ["Seoul", "Daejeon", "Taegu", "Busan"]);
-    sharedPrefs.getStringList("pref_city_list_check") ?? await sharedPrefs.setStringList("pref_city_list_check", ["Seoul", "Daejeon", "Taegu", "Busan"].map((e) => "false").toList());
+    sharedPrefs.getStringList("pref_city_list_check") ?? await sharedPrefs.setStringList("pref_city_list_check", ["false", "false", "false", "false"]);
   } catch (e) {
     print(e);
   }
