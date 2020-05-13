@@ -8,6 +8,7 @@ import 'package:flutter_today_weather/screens/weather_detail_screen.dart';
 import 'package:flutter_today_weather/services/cityData.dart';
 import 'package:flutter_today_weather/services/cityDataProvider.dart';
 import 'package:get/get.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:weather_icons/weather_icons.dart';
 
@@ -25,6 +26,16 @@ SharedPreferences sharedPrefs;
 bool useInternet = true;
 
 class _HomeScreenState extends State<HomeScreen> {
+  RefreshController _refreshController = RefreshController(
+    initialRefresh: false,
+  );
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _refreshController = RefreshController(initialRefresh: false);
+  }
+
   @override
   void didChangeDependencies() {
     // TODO: implement didChangeDependencies
@@ -33,6 +44,13 @@ class _HomeScreenState extends State<HomeScreen> {
     updateUI();
     checkInternetConnection();
     getData();
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    _refreshController.dispose();
   }
 
   void updateUI() async {
@@ -60,65 +78,83 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: Column(
-          // crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.fromLTRB(50, 42, 35, 24),
-              child: Row(
-                children: <Widget>[
-                  Text(
-                    'Today Weather',
-                    style: TextStyle(
-                      fontSize: 25,
-                      fontWeight: FontWeight.bold,
+        child: SmartRefresher(
+          enablePullDown: true,
+          enablePullUp: false,
+          header: WaterDropMaterialHeader(
+            color: Colors.lightBlue,
+            backgroundColor: Colors.white,
+          ),
+          controller: _refreshController,
+          onRefresh: _onRefresh,
+          child: Column(
+            // crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.fromLTRB(50, 42, 35, 24),
+                child: Row(
+                  children: <Widget>[
+                    Text(
+                      'Today Weather',
+                      style: TextStyle(
+                        fontSize: 25,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  ),
-                  Expanded(child: SizedBox()),
-                  GestureDetector(
-                    onTap: () async {
-                      await Get.to(SettingScreen());
-                    },
-                    child: Icon(
-                      Icons.settings,
-                      size: 30,
-                      color: Colors.black,
+                    Expanded(child: SizedBox()),
+                    GestureDetector(
+                      onTap: () async {
+                        await Get.to(SettingScreen());
+                      },
+                      child: Icon(
+                        Icons.settings,
+                        size: 30,
+                        color: Colors.black,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-            useInternet == false
-                ? AlertInternetWarning()
-                : StreamBuilder(
-                    stream: cityBloc.results,
-                    builder: (context, snapshot) {
-                      if (!snapshot.hasData || snapshot.data.length == 0) {
-                        return Container(
-                          child: Padding(
-                            padding: const EdgeInsets.only(
-                              top: 235,
+              useInternet == false
+                  ? AlertInternetWarning()
+                  : StreamBuilder(
+                      stream: cityBloc.results,
+                      builder: (context, snapshot) {
+                        if (!snapshot.hasData || snapshot.data.length == 0) {
+                          return Container(
+                            child: Padding(
+                              padding: const EdgeInsets.only(
+                                top: 235,
+                              ),
+                              child: Text(
+                                'Please setting to show weather',
+                                style: TextStyle(fontSize: 18),
+                              ),
                             ),
-                            child: Text(
-                              'Please setting to show weather',
-                              style: TextStyle(fontSize: 18),
-                            ),
-                          ),
-                        );
-                      } else {
-                        return Expanded(
-                          child: ListView.builder(
-                              itemCount: snapshot.data.length,
-                              itemBuilder: (context, index) {
-                                return _buildListTile(snapshot, index);
-                              }),
-                        );
-                      }
-                    }),
-          ],
+                          );
+                        } else {
+                          return Expanded(
+                            child: ListView.builder(
+                                itemCount: snapshot.data.length,
+                                itemBuilder: (context, index) {
+                                  return _buildListTile(snapshot, index);
+                                }),
+                          );
+                        }
+                      }),
+            ],
+          ),
         ),
       ),
     );
+  }
+
+  void _onRefresh() async {
+    await prepareUserSetting();
+    updateUI();
+    checkInternetConnection();
+    getData();
+    _refreshController.refreshCompleted();
   }
 
   void getData() async {
