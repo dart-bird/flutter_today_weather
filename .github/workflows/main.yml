@@ -17,8 +17,9 @@ jobs:
       - run: flutter config --enable-web
       - run: flutter pub get
       - run: flutter build web --release
+        working-directory: .
       - run: |
-          cd build/web
+          cd ./build/web
           git init
           # type configurations: your user.email and user.name followed lines 
           # git config --global user.email your_email 
@@ -26,8 +27,8 @@ jobs:
           git config --global user.email okokrt@gmail.com
           git config --global user.name krumaska
           git status
-          # change this remote url for examle your remote url is https://github.com/krumaska/flutter_today_weather.git then the following:
-          git remote add origin https://${{secrets.commit_secret}}@github.com/krumaska/flutter_today_weather.git
+          # change this remote url for examle your remote url is https://github.com/jil8885/flutter_today_weather.git then the following:
+          git remote add origin https://${{secrets.commit_secret}}@github.com/jil8885/flutter_today_weather.git
           git checkout -b gh-pages
           git add --all
           git commit -m "update"
