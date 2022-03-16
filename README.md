@@ -3,7 +3,7 @@
 Used [OpenweatherMap Api Site](https://openweathermap.org)  
 
 ## Let's get it!
-* [dart-bird Today Weather Site](https://dart-bird.github.io/flutter_today_weather/#/)
+* [dart-bird Today Weather Site](https://blog.dartbird.dev/flutter_today_weather/#/)
   
 ## Prepare    
   
