@@ -11,9 +11,9 @@ class SettingScreen extends StatefulWidget {
 }
 
 class _SettingScreenState extends State<SettingScreen> {
-  SharedPreferences sharedPrefs;
-  List<String> cityCheckList = List<String>();
-  List<String> cityListTitles = List<String>();
+  SharedPreferences? sharedPrefs;
+  List<String> cityCheckList = [];
+  List<String> cityListTitles = [];
   @override
   void initState() {
     super.initState();
@@ -23,11 +23,11 @@ class _SettingScreenState extends State<SettingScreen> {
   void updating() async {
     sharedPrefs = await SharedPreferences.getInstance();
 
-    List<String> cityUseValues = List<String>();
+    List<String> cityUseValues = [];
     cityCheckList = [];
     cityListTitles = [];
-    cityCheckList = sharedPrefs.getStringList("pref_city_list_check");
-    cityListTitles = sharedPrefs.getStringList("pref_city_list_titles");
+    cityCheckList = sharedPrefs?.getStringList("pref_city_list_check") ?? [];
+    cityListTitles = sharedPrefs?.getStringList("pref_city_list_titles") ?? [];
     print(cityListTitles);
     setState(() {});
   }
@@ -80,7 +80,7 @@ class _SettingScreenState extends State<SettingScreen> {
                         cityUseValues.clear();
                         sharedPrefs = await SharedPreferences.getInstance();
                         cityCheckList[index] == "false" ? cityCheckList[index] = "true" : cityCheckList[index] = "false";
-                        await sharedPrefs.setStringList("pref_city_list_check", cityCheckList);
+                        await sharedPrefs?.setStringList("pref_city_list_check", cityCheckList);
                         setState(() {});
                         int i = 0;
                         cityUseValues.clear();
@@ -99,7 +99,7 @@ class _SettingScreenState extends State<SettingScreen> {
                         setState(() {});
                         // setState(() {});
                       },
-                      color: cityCheckList[index] == "true" ? Colors.lightBlue[200] : Colors.grey[200],
+                      color: cityCheckList[index] == "true" ? Colors.lightBlue.shade200 : Colors.grey.shade200,
                       padding: EdgeInsets.all(10),
                       margin: EdgeInsets.fromLTRB(16, 20, 16, 25),
                       cardChild: Text(cityListTitles[index]),

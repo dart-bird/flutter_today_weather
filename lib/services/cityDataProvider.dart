@@ -7,9 +7,9 @@ class CityDataProvider extends InheritedWidget {
 
   @override
   bool updateShouldNotify(InheritedWidget oldWidget) => true;
-  static CityDataBloc of(BuildContext context) => context.dependOnInheritedWidgetOfExactType<CityDataProvider>().cityDataBloc;
+  static CityDataBloc of(BuildContext context) => context.dependOnInheritedWidgetOfExactType<CityDataProvider>()?.cityDataBloc ?? CityDataBloc(WeatherModel());
 
-  CityDataProvider({Key key, CityDataBloc cityDataBloc, Widget child})
+  CityDataProvider({super.key, CityDataBloc? cityDataBloc, required child})
       : this.cityDataBloc = cityDataBloc ?? CityDataBloc(WeatherModel()),
-        super(child: child, key: key);
+        super(child: child);
 }

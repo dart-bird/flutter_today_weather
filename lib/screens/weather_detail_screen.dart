@@ -7,8 +7,8 @@ import 'package:weather_icons/weather_icons.dart';
 
 class WeatherDetailScreen extends StatefulWidget {
   WeatherDetailScreen({this.weatherImageUrl, this.snapshotData});
-  final String weatherImageUrl;
-  final CityData snapshotData;
+  final String? weatherImageUrl;
+  final CityData? snapshotData;
   // WeatherDetailScreen({
   //   this.weatherDataList,
   // });
@@ -18,17 +18,17 @@ class WeatherDetailScreen extends StatefulWidget {
 }
 
 class _WeatherDetailScreenState extends State<WeatherDetailScreen> {
-  String cityName;
-  String temp;
-  String feels_like;
-  String temp_min;
-  String temp_max;
-  String pressure;
-  String humidity;
-  String weather;
-  String weather_description;
-  String wind_speed;
-  String wind_deg;
+  String? cityName;
+  String? temp;
+  String? feels_like;
+  String? temp_min;
+  String? temp_max;
+  String? pressure;
+  String? humidity;
+  String? weather;
+  String? weather_description;
+  String? wind_speed;
+  String? wind_deg;
   @override
   void initState() {
     // TODO: implement initState
@@ -40,20 +40,28 @@ class _WeatherDetailScreenState extends State<WeatherDetailScreen> {
 
   void updateUI() {
     setState(() {
-      var _snapMain = widget.snapshotData.main;
-      var _snapWeather = widget.snapshotData.weather;
-      var _snapWind = widget.snapshotData.wind;
-      cityName = widget.snapshotData.name;
-      temp = _snapMain[0];
-      feels_like = _snapMain[1];
-      temp_min = _snapMain[2];
-      temp_max = _snapMain[3];
-      pressure = _snapMain[4];
-      humidity = _snapMain[5];
-      weather = _snapWeather[0];
-      weather_description = _snapWeather[1];
-      wind_speed = _snapWind[0];
-      wind_deg = _snapWind[1];
+      var _snapMain = widget.snapshotData?.main;
+      var _snapWeather = widget.snapshotData?.weather;
+      var _snapWind = widget.snapshotData?.wind;
+      cityName = widget.snapshotData?.name;
+      if (_snapMain != null) {
+        temp = _snapMain[0];
+        feels_like = _snapMain[1];
+        temp_min = _snapMain[2];
+        temp_max = _snapMain[3];
+        pressure = _snapMain[4];
+        humidity = _snapMain[5];
+      }
+
+      if (_snapWeather != null) {
+        weather = _snapWeather[0];
+        weather_description = _snapWeather[1];
+      }
+
+      if (_snapWind != null) {
+        wind_speed = _snapWind[0];
+        wind_deg = _snapWind[1];
+      }
     });
   }
 
@@ -81,11 +89,11 @@ class _WeatherDetailScreenState extends State<WeatherDetailScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
-                    Image.network(widget.weatherImageUrl),
+                    widget.weatherImageUrl != null ? Image.network(widget.weatherImageUrl!) : SizedBox.shrink(),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 40),
                       child: Text(
-                        double.parse(temp).round().toString(),
+                        double.parse(temp ?? '').round().toString(),
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 50,
@@ -99,7 +107,7 @@ class _WeatherDetailScreenState extends State<WeatherDetailScreen> {
                 Container(
                   padding: EdgeInsets.fromLTRB(16.0, 32.0, 0, 16.0),
                   child: Text(
-                    weather_description + "\nHave a nice day.",
+                    "${weather_description}\nHave a nice day.",
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 40,
@@ -110,30 +118,30 @@ class _WeatherDetailScreenState extends State<WeatherDetailScreen> {
                 Row(
                   children: <Widget>[
                     TempWidget(
-                      temp: temp_min,
+                      temp: temp_min ?? '-',
                       temp_label: "MIN",
                     ),
                     TempWidget(
-                      temp: temp_max,
+                      temp: temp_max ?? '-',
                       temp_label: "MAX",
                     ),
                     TempWidget(
-                      temp: feels_like,
+                      temp: feels_like ?? '-',
                       temp_label: "FEEL",
                     ),
                   ],
                 ),
                 LinearBar(
                   title: "PRESSURE",
-                  value: (double.parse(pressure) / 1013.25),
+                  value: (double.parse(pressure ?? '') / 1013.25),
                 ),
                 LinearBar(
                   title: "HUMIDITY",
-                  value: (double.parse(humidity) / 100.0),
+                  value: (double.parse(humidity ?? '') / 100.0),
                 ),
                 Padding(
                   padding: const EdgeInsets.all(128.0),
-                  child: Center(child: WindWidget(double.parse(wind_speed), 65.0, Colors.white)),
+                  child: Center(child: WindWidget(double.parse(wind_speed ?? ''), 65.0, Colors.white)),
                 )
               ],
             ),
@@ -209,13 +217,13 @@ Widget WindWidget(double wind_speed, double size, Color color) {
 
 class LinearBar extends StatelessWidget {
   const LinearBar({
-    Key key,
+    super.key,
     @required this.title,
     @required this.value,
-  }) : super(key: key);
+  });
 
-  final String title;
-  final double value;
+  final String? title;
+  final double? value;
 
   @override
   Widget build(BuildContext context) {
@@ -226,7 +234,7 @@ class LinearBar extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Text(
-              title,
+              title ?? '-',
               style: TextStyle(color: Colors.white),
             ),
           ),
@@ -235,8 +243,12 @@ class LinearBar extends StatelessWidget {
             animation: true,
             lineHeight: 20.0,
             animationDuration: 2500,
-            percent: value >= 1.0 ? 1.0 : value,
-            center: title == "PRESSURE" ? Text((value).roundToDouble().toString() + " atm") : Text((value * 100).round().toString() + "%"),
+            percent: value != null
+                ? value! >= 1.0
+                    ? 1.0
+                    : value!
+                : 0.0,
+            center: title == "PRESSURE" ? Text((value)!.roundToDouble().toString() + " atm") : Text((value ?? 0 * 100).round().toString() + "%"),
             linearStrokeCap: LinearStrokeCap.roundAll,
             progressColor: Colors.white,
             backgroundColor: Colors.lightBlueAccent,
@@ -249,10 +261,10 @@ class LinearBar extends StatelessWidget {
 
 class TempWidget extends StatelessWidget {
   const TempWidget({
-    Key key,
-    @required this.temp,
-    @required this.temp_label,
-  }) : super(key: key);
+    super.key,
+    required this.temp,
+    required this.temp_label,
+  });
 
   final String temp;
   final String temp_label;

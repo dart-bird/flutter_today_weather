@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class ReuseableCard extends StatelessWidget {
   ReuseableCard({
-    @required this.color,
+    required this.color,
     this.cardChild,
     this.onPressed,
     this.onLongPressed,
@@ -11,15 +11,14 @@ class ReuseableCard extends StatelessWidget {
     this.margin,
   });
   final Color color;
-  final Widget cardChild;
-  final Function onPressed;
-  final Function onLongPressed;
-  double height;
-  EdgeInsets padding;
-  EdgeInsets margin;
+  final Widget? cardChild;
+  final VoidCallback? onPressed;
+  final VoidCallback? onLongPressed;
+  double? height;
+  EdgeInsets? padding;
+  EdgeInsets? margin;
   @override
   Widget build(BuildContext context) {
-    //double screenWidth = MediaQuery.of(context).size.width;
     return Container(
       height: height,
       width: double.infinity,

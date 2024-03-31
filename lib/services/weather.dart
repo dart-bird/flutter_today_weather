@@ -10,15 +10,15 @@ const openWeatherMapURL = 'https://api.openweathermap.org/data/2.5/weather';
 class WeatherModel {
   Future<List<CityData>> getCityWeather(List<String> cityIds) async {
     SharedPreferences sharedPrefs = await SharedPreferences.getInstance();
-    List<CityData> cityDataList = List<CityData>();
-    List<String> cityListTitle = List<String>();
-    List<String> cityListValue = List<String>();
+    List<CityData> cityDataList = [];
+    List<String> cityListTitle = [];
+    List<String> cityListValue = [];
     try {
       cityDataList.clear();
       print(cityIds.length);
       print(cityIds);
-      cityListTitle = sharedPrefs.getStringList("pref_city_list_titles");
-      cityListValue = sharedPrefs.getStringList("pref_city_list_values");
+      cityListTitle = sharedPrefs.getStringList("pref_city_list_titles") ?? [];
+      cityListValue = sharedPrefs.getStringList("pref_city_list_values") ?? [];
       int i = 0;
       for (var cityId in cityIds) {
         i = 0;

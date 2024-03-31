@@ -5,10 +5,10 @@ class CityData {
     this.wind,
     this.name,
   });
-  List<String> main = List<String>();
-  List<String> weather = List<String>();
-  List<String> wind = List<String>();
-  String name;
+  List<String>? main = [];
+  List<String>? weather = [];
+  List<String>? wind = [];
+  String? name;
   CityData.fromJson(Map json)
       : main = [
           json["main"]["temp"].toString(),

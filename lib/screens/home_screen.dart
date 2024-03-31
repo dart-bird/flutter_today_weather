@@ -18,11 +18,11 @@ class HomeScreen extends StatefulWidget {
 }
 
 // List<CityData> weatherDataList = List<CityData>();
-List<String> cityUseValues = List<String>();
-List<String> cityListTitles = List<String>();
-List<String> cityListValues = List<String>();
-List<String> cityCheckList = List<String>();
-SharedPreferences sharedPrefs;
+List<String> cityUseValues = [];
+List<String> cityListTitles = [];
+List<String> cityListValues = [];
+List<String> cityCheckList = [];
+SharedPreferences? sharedPrefs;
 bool useInternet = true;
 
 class _HomeScreenState extends State<HomeScreen> {
@@ -55,7 +55,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void updateUI() async {
     sharedPrefs = await SharedPreferences.getInstance();
-    cityCheckList = sharedPrefs.getStringList("pref_city_list_check");
+    cityCheckList = sharedPrefs?.getStringList("pref_city_list_check") ?? [];
     setState(() {});
   }
 
@@ -120,7 +120,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   : StreamBuilder(
                       stream: cityBloc.results,
                       builder: (context, snapshot) {
-                        if (!snapshot.hasData || snapshot.data.length == 0) {
+                        if (!snapshot.hasData || snapshot.data?.length == 0) {
                           return Container(
                             child: Padding(
                               padding: const EdgeInsets.only(
@@ -135,7 +135,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         } else {
                           return Expanded(
                             child: ListView.builder(
-                                itemCount: snapshot.data.length,
+                                itemCount: snapshot.data?.length,
                                 itemBuilder: (context, index) {
                                   return _buildListTile(snapshot, index);
                                 }),
@@ -162,10 +162,8 @@ class _HomeScreenState extends State<HomeScreen> {
     sharedPrefs = await SharedPreferences.getInstance();
 
     await prepareUserSetting();
-    cityListValues = sharedPrefs.getStringList("pref_city_list_values");
-    cityCheckList = sharedPrefs.getStringList("pref_city_list_check");
-    print(cityListValues);
-    print(cityCheckList); // 왜 출력하면 내용이 있고 출력안하면 내용이 없지?
+    cityListValues = sharedPrefs?.getStringList("pref_city_list_values") ?? [];
+    cityCheckList = sharedPrefs?.getStringList("pref_city_list_check") ?? [];
 
     int i = 0;
     cityUseValues.clear();
@@ -184,9 +182,7 @@ class _HomeScreenState extends State<HomeScreen> {
 }
 
 class AlertInternetWarning extends StatelessWidget {
-  const AlertInternetWarning({
-    Key key,
-  }) : super(key: key);
+  const AlertInternetWarning({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -211,7 +207,7 @@ class AlertInternetWarning extends StatelessWidget {
       ),
       actions: <Widget>[
         // usually buttons at the bottom of the dialog
-        new FlatButton(
+        new TextButton(
           child: new Text(
             "Close",
             style: TextStyle(
@@ -244,26 +240,26 @@ Widget _buildListTile(AsyncSnapshot snapshot, int index) {
 
 class CityBox extends StatelessWidget {
   CityBox({this.cityName, this.temp, this.weatherName, this.weatherImageUrl, this.snapshotData});
-  String cityName;
-  String temp;
-  String weatherName;
-  String weatherImageUrl;
-  CityData snapshotData;
+  String? cityName;
+  String? temp;
+  String? weatherName;
+  String? weatherImageUrl;
+  CityData? snapshotData;
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () async {
-        await Get.to(WeatherDetailScreen(weatherImageUrl: weatherImageUrl, snapshotData: snapshotData));
+        await Get.to(WeatherDetailScreen(weatherImageUrl: weatherImageUrl ?? '', snapshotData: snapshotData ?? CityData()));
       },
       child: ReuseableCard(
-        color: Colors.blue[300],
+        color: Colors.blue.shade300,
         cardChild: Row(
           children: <Widget>[
-            Container(height: 50, child: Image.network(weatherImageUrl)),
+            weatherImageUrl != null ? Container(height: 50, child: Image.network(weatherImageUrl!)) : SizedBox.shrink(),
             SizedBox(
               width: 20,
             ),
-            Text(cityName,
+            Text(cityName ?? '도시이름정보없음',
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 20,
@@ -288,7 +284,7 @@ class CityBox extends StatelessWidget {
               width: 5,
             ),
             Text(
-              temp,
+              temp ?? '온도정도없음',
               overflow: TextOverflow.fade,
               style: TextStyle(
                 color: Colors.white,
@@ -297,7 +293,7 @@ class CityBox extends StatelessWidget {
               ),
             ),
             Expanded(child: SizedBox()),
-            Text(weatherName,
+            Text(weatherName ?? '날씨정보없음',
                 overflow: TextOverflow.fade,
                 style: TextStyle(
                   color: Colors.white,
@@ -313,9 +309,9 @@ class CityBox extends StatelessWidget {
 Future<void> prepareUserSetting() async {
   sharedPrefs = await SharedPreferences.getInstance();
   try {
-    sharedPrefs.getStringList("pref_city_list_values") ?? await sharedPrefs.setStringList("pref_city_list_values", ["1835847", "1835235", "1835327", "1838524"]);
-    sharedPrefs.getStringList("pref_city_list_titles") ?? await sharedPrefs.setStringList("pref_city_list_titles", ["Seoul", "Daejeon", "Taegu", "Busan"]);
-    sharedPrefs.getStringList("pref_city_list_check") ?? await sharedPrefs.setStringList("pref_city_list_check", ["false", "false", "false", "false"]);
+    sharedPrefs?.getStringList("pref_city_list_values") ?? await sharedPrefs?.setStringList("pref_city_list_values", ["1835847", "1835235", "1835327", "1838524"]);
+    sharedPrefs?.getStringList("pref_city_list_titles") ?? await sharedPrefs?.setStringList("pref_city_list_titles", ["Seoul", "Daejeon", "Taegu", "Busan"]);
+    sharedPrefs?.getStringList("pref_city_list_check") ?? await sharedPrefs?.setStringList("pref_city_list_check", ["false", "false", "false", "false"]);
   } catch (e) {
     print(e);
   }
